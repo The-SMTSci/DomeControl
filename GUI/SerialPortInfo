@@ -1,0 +1,203 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+#
+# (compile (format "python -m py_compile %s" (buffer-file-name)))
+# (compile (format "pydoc3 %s" (buffer-file-name)))
+#
+# 2024-09-06T14:34:25-0600 wlg - hack from
+#   https://stackoverflow.com/questions/55070483/connect-to-serial-from-a-pyqt-gui
+#   Adjusted for PySide6
+#   Renamed a few slots etc, and translated from Danish
+#
+# (wg-python-toc)
+#
+# class AddComport(QMainWindow):
+#     def __init__(self, parent , menu):                    # AddComport.__init__()
+#     def valgAfComportClick(self , port):                  # AddComport.valgAfComportClick()
+#     def closeEvent(self, event):                          # AddComport.closeEvent()
+# class MainWindow(QMainWindow):
+#     def __init__(self):                                   # MainWindow.__init__()
+#     @QtCore.Slot()
+#     def receive(self):                                    # MainWindow.receive()
+#     @QtCore.Slot()                                        # MainWindow.Slot()
+#     def send(self):
+#     @QtCore.Slot(bool)                                    # MainWindow.on_toggled()
+#     def on_toggled(self, checked):
+#     def valgAfComport(self , nyport):                     # MainWindow.valgAfComport()
+#     def closeEvent(self, event):                          # MainWindow.closeEvent()
+# if __name__ == '__main__':
+#
+#
+#############################################################################
+### HEREHEREHERE
+
+import os
+import optparse
+import sys
+import re
+
+from PySide6              import QtCore, QtWidgets, QtSerialPort
+from PySide6.QtGui        import QAction
+from PySide6.QtWidgets    import QApplication, QMainWindow ,QWidget ,QToolBar
+from PySide6.QtWidgets    import QHBoxLayout, QStatusBar ,QLineEdit
+from PySide6.QtWidgets    import QPushButton ,QTextEdit , QVBoxLayout
+from PySide6.QtCore       import Qt , Signal
+from PySide6.QtSerialPort import QSerialPortInfo
+
+class AddComport(QMainWindow):
+    porttnavn = Signal(str)
+
+    def __init__(self, parent , menu):                    # AddComport.__init__()
+        super().__init__(parent)
+
+        menuCcomport = menu.addMenu("COMPort")
+
+        info_list     = QSerialPortInfo()
+        serial_list   = info_list.availablePorts()
+        serial_ports  = [port.portName() for port in serial_list]
+
+        if(len(serial_ports)> 0):
+            antalport = len(serial_ports)
+            antal = 0
+            while antal < antalport:
+                button_action = QAction(serial_ports[antal], self)
+                txt           = serial_ports[antal]
+                portinfo      = QSerialPortInfo(txt)
+                buttoninfotxt = " No Imformation"
+                if portinfo.hasProductIdentifier():
+                    buttoninfotxt = ("Product Specification = " + str(portinfo.vendorIdentifier()))
+                if portinfo.hasVendorIdentifier():
+                    buttoninfotxt =  buttoninfotxt + (" Product id = "+ str(portinfo.productIdentifier()))
+                button_action = QAction( txt , self)
+                button_action.setStatusTip( buttoninfotxt)
+                button_action.triggered.connect(lambda checked, txt = txt: self.valgAfComportClick(txt))
+                menuCcomport.addAction(button_action)
+                antal = antal +1
+        else:
+            print("No Com port found")
+
+    ### AddComport.__init__()
+
+    def valgAfComportClick(self , port):                  # AddComport.valgAfComportClick()
+        self.porttnavn.emit(port)
+
+    ### AddComport.valgAfComportClick()
+
+    def closeEvent(self, event):                          # AddComport.closeEvent()
+        self.close()
+    ### AddComport.closeEvent()
+
+# class AddComport
+
+##############################################################################
+# MainWindow
+#
+##############################################################################
+class MainWindow(QMainWindow):
+    def __init__(self):                                   # MainWindow.__init__()
+        super(MainWindow, self).__init__()
+
+        portname        = "None"
+
+        self.setStatusBar(QStatusBar(self))
+
+        menu            = self.menuBar()
+        comfinder       = AddComport(self , menu)
+        comfinder.porttnavn.connect(self.valgAfComport)
+
+        self.setWindowTitle("Serial port display / send")
+
+        self.message_le = QLineEdit()
+        self.send_btn   = QPushButton( text    = "Send",
+                                       clicked = self.send  # action for button
+                                     )
+
+        self.output_te  = QTextEdit(readOnly=True)
+        self.button     = QPushButton( text      = "Connect",
+                                       checkable = True,
+                                       toggled   = self.on_toggled  # action for button
+                                     )
+        # setup layout
+        lay             = QVBoxLayout(self)
+        hlay            = QHBoxLayout  ()
+
+        hlay.  addWidget    (self.message_le)
+        hlay.  addWidget    (self.send_btn)
+        lay.   addLayout    (hlay)
+        lay.   addWidget    (self.output_te)
+        lay.   addWidget    (self.button)
+
+        widget = QWidget()
+        widget.setLayout(lay)
+        self.setCentralWidget(widget)
+
+        self.serial = QtSerialPort.QSerialPort( portname,
+                                                baudRate  = QtSerialPort.QSerialPort.Baud9600,
+                                                readyRead = self.receive
+                                              )
+    ### MainWindow.__init__()
+
+    @QtCore.Slot()
+    def receive(self):                                    # MainWindow.receive()
+        while self.serial.canReadLine():
+            text = self.serial.readLine().data().decode()
+            text = text.rstrip('\r\n')
+            self.output_te.append(text)
+
+    ### MainWindow.receive()
+
+    @QtCore.Slot()                                        # MainWindow.Slot()
+    def send(self):
+        self.serial.write(self.message_le.text().encode())
+
+    ### MainWindow.Slot()
+
+    @QtCore.Slot(bool)                                    # MainWindow.on_toggled()
+    def on_toggled(self, checked):
+        self.button.setText("Disconnect" if checked else "Connect")
+        if checked:
+            if not self.serial.isOpen():
+                self.serial.open(QtCore.QIODevice.ReadWrite)
+                if not self.serial.isOpen():
+                    self.button.setChecked(False)
+            else:
+                self.button.setChecked(False)
+        else:
+            self.serial.close()
+
+    ### MainWindow.on_toggled()
+
+    def valgAfComport(self , nyport):                     # MainWindow.valgAfComport()
+        seropen = False
+        if self.serial.isOpen():
+            seropen = True
+            self.serial.close()
+        self.serial.setPortName(nyport)
+        if seropen:
+            self.serial.open(QtCore.QIODevice.ReadWrite)
+            if not self.serial.isOpen():
+                self.button.setChecked(False)
+
+        print(nyport)
+
+    ### MainWindow.valgAfComport()
+
+    def closeEvent(self, event):                          # MainWindow.closeEvent()
+        self.serial.close()
+        print("Comport closed")
+        # print(comporttxt)
+    ### MainWindow.closeEvent()
+
+
+##############################################################################
+#                                 MAIN
+#
+##############################################################################
+if __name__ == '__main__':
+    app = QtWidgets.QApplication(sys.argv)
+    w = MainWindow()
+    w.show()
+    sys.exit(app.exec())
+
+
