@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>416</width>
-    <height>230</height>
+    <width>493</width>
+    <height>242</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -184,6 +184,12 @@ color: black</string>
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>Username</tabstop>
+  <tabstop>Password</tabstop>
+  <tabstop>Hostname</tabstop>
+  <tabstop>Port</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -193,12 +199,12 @@ color: black</string>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>320</x>
+     <y>194</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
-     <y>274</y>
+     <y>229</y>
     </hint>
    </hints>
   </connection>
@@ -209,12 +215,12 @@ color: black</string>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>320</x>
+     <y>200</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
-     <y>274</y>
+     <y>229</y>
     </hint>
    </hints>
   </connection>

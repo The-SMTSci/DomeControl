@@ -195,6 +195,14 @@ color: white;
   <zorder>ParityValue</zorder>
   <zorder>ComLabel</zorder>
  </widget>
+ <tabstops>
+  <tabstop>PortValue</tabstop>
+  <tabstop>BaudValue</tabstop>
+  <tabstop>BitsValue</tabstop>
+  <tabstop>StartValue</tabstop>
+  <tabstop>StopValue</tabstop>
+  <tabstop>ParityValue</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

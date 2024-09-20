@@ -335,7 +335,14 @@
     <addaction name="action_Serial"/>
     <addaction name="action_Network"/>
    </widget>
+   <widget class="QMenu" name="menuUtils">
+    <property name="title">
+     <string>Utils</string>
+    </property>
+    <addaction name="action_Terminal"/>
+   </widget>
    <addaction name="menuComm"/>
+   <addaction name="menuUtils"/>
   </widget>
   <action name="action_Serial">
    <property name="text">
@@ -347,7 +354,31 @@
     <string>&amp;Network</string>
    </property>
   </action>
+  <action name="action_Terminal">
+   <property name="text">
+    <string>&amp;Terminal</string>
+   </property>
+  </action>
  </widget>
+ <tabstops>
+  <tabstop>Entry_lineEdit</tabstop>
+  <tabstop>One_pushButton</tabstop>
+  <tabstop>Two_pushButton</tabstop>
+  <tabstop>Three_pushButton</tabstop>
+  <tabstop>Four_pushButton</tabstop>
+  <tabstop>Five_pushButton</tabstop>
+  <tabstop>Six_pushButton</tabstop>
+  <tabstop>Seven_pushButton</tabstop>
+  <tabstop>Eight_pushButton</tabstop>
+  <tabstop>Nine_pushButton</tabstop>
+  <tabstop>Clear_pushButton</tabstop>
+  <tabstop>Zero_pushButton</tabstop>
+  <tabstop>Decimal_pushButton</tabstop>
+  <tabstop>JogCW_pushButton</tabstop>
+  <tabstop>JogCCW_pushButton</tabstop>
+  <tabstop>Go_pushButton</tabstop>
+  <tabstop>Home_pushButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

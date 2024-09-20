@@ -500,6 +500,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def Home_pushButton_clicked(self):                    # MainWindow.Home_pushButton_clicked()
        """Send Home command to the interface.
        """
+       
+       self.CurrentPosition_label.setText("0")
        self.statusmsg("Home")
     ### MainWindow.Home_pushButton_clicked()
 

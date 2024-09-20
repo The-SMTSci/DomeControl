@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
+# DomeControl/GUI/SerialPortInfo
 #
 # (compile (format "python -m py_compile %s" (buffer-file-name)))
 # (compile (format "pydoc3 %s" (buffer-file-name)))
@@ -9,6 +10,8 @@
 #   https://stackoverflow.com/questions/55070483/connect-to-serial-from-a-pyqt-gui
 #   Adjusted for PySide6
 #   Renamed a few slots etc, and translated from Danish
+# 2024-09-06T21:13:32-0600 wlg - trimed out needless imports, and fixed the TOC entries.
+#
 #
 # (wg-python-toc)
 #
@@ -19,14 +22,15 @@
 # class MainWindow(QMainWindow):
 #     def __init__(self):                                   # MainWindow.__init__()
 #     @QtCore.Slot()
-#     def receive(self):                                    # MainWindow.receive()
-#     @QtCore.Slot()                                        # MainWindow.Slot()
+#     def receive(self):                                    # MainWindow.receive()  QtCore.Slot
+#     @QtCore.Slot()                                        # MainWindow.send()  QtCore.Slot
 #     def send(self):
-#     @QtCore.Slot(bool)                                    # MainWindow.on_toggled()
+#     @QtCore.Slot(bool)                                    # MainWindow.on_toggled()  QtCore.Slot
 #     def on_toggled(self, checked):
 #     def valgAfComport(self , nyport):                     # MainWindow.valgAfComport()
 #     def closeEvent(self, event):                          # MainWindow.closeEvent()
 # if __name__ == '__main__':
+#
 #
 #
 #############################################################################
@@ -39,13 +43,24 @@ import re
 
 from PySide6              import QtCore, QtWidgets, QtSerialPort
 from PySide6.QtGui        import QAction
-from PySide6.QtWidgets    import QApplication, QMainWindow ,QWidget ,QToolBar
-from PySide6.QtWidgets    import QHBoxLayout, QStatusBar ,QLineEdit
-from PySide6.QtWidgets    import QPushButton ,QTextEdit , QVBoxLayout
-from PySide6.QtCore       import Qt , Signal
+from PySide6.QtWidgets    import QApplication, QMainWindow ,QWidget
+from PySide6.QtWidgets    import QHBoxLayout, QVBoxLayout, QStatusBar
+from PySide6.QtWidgets    import QPushButton ,QTextEdit ,QLineEdit
+from PySide6.QtCore       import Signal
 from PySide6.QtSerialPort import QSerialPortInfo
 
+
+##############################################################################
+# AddComport
+#
+##############################################################################
 class AddComport(QMainWindow):
+    """The QT parts
+        QSerialPortInfo()
+        QAction
+        Signal
+
+    """
     porttnavn = Signal(str)
 
     def __init__(self, parent , menu):                    # AddComport.__init__()
@@ -81,7 +96,6 @@ class AddComport(QMainWindow):
 
     def valgAfComportClick(self , port):                  # AddComport.valgAfComportClick()
         self.porttnavn.emit(port)
-
     ### AddComport.valgAfComportClick()
 
     def closeEvent(self, event):                          # AddComport.closeEvent()
@@ -95,6 +109,18 @@ class AddComport(QMainWindow):
 #
 ##############################################################################
 class MainWindow(QMainWindow):
+    """QT Parts:
+        QHBoxLayout
+        QLineEdit
+        QPushButton
+        QStatusBar
+        QTextEdit
+        QVBoxLayout
+        QWidget
+        QtSerialPort.QSerialPort QtSerialPort.QSerialPort.Baud9600
+        -
+
+    """
     def __init__(self):                                   # MainWindow.__init__()
         super(MainWindow, self).__init__()
 
@@ -128,7 +154,7 @@ class MainWindow(QMainWindow):
         lay.   addWidget    (self.output_te)
         lay.   addWidget    (self.button)
 
-        widget = QWidget()
+        widget          = QWidget()
         widget.setLayout(lay)
         self.setCentralWidget(widget)
 
@@ -139,7 +165,7 @@ class MainWindow(QMainWindow):
     ### MainWindow.__init__()
 
     @QtCore.Slot()
-    def receive(self):                                    # MainWindow.receive()
+    def receive(self):                                    # MainWindow.receive()  QtCore.Slot
         while self.serial.canReadLine():
             text = self.serial.readLine().data().decode()
             text = text.rstrip('\r\n')
@@ -147,13 +173,13 @@ class MainWindow(QMainWindow):
 
     ### MainWindow.receive()
 
-    @QtCore.Slot()                                        # MainWindow.Slot()
+    @QtCore.Slot()                                        # MainWindow.send()  QtCore.Slot
     def send(self):
         self.serial.write(self.message_le.text().encode())
 
-    ### MainWindow.Slot()
+    ### MainWindow.send()
 
-    @QtCore.Slot(bool)                                    # MainWindow.on_toggled()
+    @QtCore.Slot(bool)                                    # MainWindow.on_toggled()  QtCore.Slot
     def on_toggled(self, checked):
         self.button.setText("Disconnect" if checked else "Connect")
         if checked:
@@ -178,7 +204,6 @@ class MainWindow(QMainWindow):
             self.serial.open(QtCore.QIODevice.ReadWrite)
             if not self.serial.isOpen():
                 self.button.setChecked(False)
-
         print(nyport)
 
     ### MainWindow.valgAfComport()
@@ -189,6 +214,7 @@ class MainWindow(QMainWindow):
         # print(comporttxt)
     ### MainWindow.closeEvent()
 
+# class MainWindow
 
 ##############################################################################
 #                                 MAIN
